@@ -1,0 +1,64 @@
+{
+    "enemies": [
+        {
+            "name": "Enemigo1",
+            "sprite": {
+                "path": "assets/sprites/Enemy1.png"
+            },
+            "collider": {
+                "width": 59.0,
+                "height": 40.0
+            },
+            "ai": {
+                "base_speed": 500.0,
+                "focus_range": 480.0,
+                "velocity_smoothing": 5.0
+            }
+        },
+        {
+            "name": "Enemigo2",
+            "sprite": {
+                "path": "assets/sprites/Enemy2.png"
+            },
+            "collider": {
+                "width": 67.0,
+                "height": 50.0
+            },
+            "ai": {
+                "base_speed": 550.0,
+                "focus_range": 400.0,
+                "velocity_smoothing": 6.0
+            }
+        },
+        {
+            "name": "Enemigo3",
+            "sprite": {
+                "path": "assets/sprites/Enemy3.png"
+            },
+            "collider": {
+                "width": 145.0,
+                "height": 100.0
+            },
+            "ai": {
+                "base_speed": 400.0,
+                "focus_range": 250.0,
+                "velocity_smoothing": 4.0
+            }
+        },
+        {
+            "name": "Enemigo4",
+            "sprite": {
+                "path": "assets/sprites/Enemy4.png"
+            },
+            "collider": {
+                "width": 154.0,
+                "height": 150.0
+            },
+            "ai": {
+                "base_speed": 600.0,
+                "focus_range": 400.0,
+                "velocity_smoothing": 10.0
+            }
+        }
+    ]
+}

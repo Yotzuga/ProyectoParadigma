@@ -1,0 +1,22 @@
+{
+    "configurations": [
+        {
+            "name": "Win32",
+            "includePath": [
+                "${workspaceFolder}/include",
+                "${workspaceFolder}/external/GLM/include",
+                "${workspaceFolder}/external/SDL3/include",
+                "${workspaceFolder}/external/SDL3_Image/include",
+                "${workspaceFolder}/external/spdlog/include",
+                "${workspaceFolder}/external/nlohmann_json/include",
+                "${workspaceFolder}/**"
+            ],
+            "defines": [],
+            "compilerPath": "g++",
+            "cStandard": "c11",
+            "cppStandard": "c++17",
+            "intelliSenseMode": "gcc-x64"
+        }
+    ],
+    "version": 4
+}

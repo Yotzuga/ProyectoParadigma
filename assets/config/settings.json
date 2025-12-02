@@ -1,0 +1,16 @@
+{
+  "window": {
+    "width": 1920,
+    "height": 1080,
+    "title": "ECS Kazz"
+  },
+  "gameplay": {
+    "player_speed": 600.0,
+    "target_fps": 60
+  },
+  "collision": {
+    "player_push_strength": 10.0,
+    "enemy_push_strength": 10.0,
+    "player_invulnerability_duration": 1.0
+  }
+}

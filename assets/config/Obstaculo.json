@@ -1,0 +1,11 @@
+{
+    "obstaculo": {
+        "sprite": {
+            "path": "assets/sprites/obstaculo.png"
+        },
+        "collider": {
+            "width": 100.0,
+            "height": 100.0
+        }
+    }
+}
