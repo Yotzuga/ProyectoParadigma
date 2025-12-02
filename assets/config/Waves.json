@@ -15,8 +15,8 @@
                 }
             ],
             "spawn_interval": 0.5,
-            "duration": 8.0,
-            "increase_based_speed": 1.2
+            "duration": 10.0,
+            "increase_based_speed": 1
         },
         {
             "wave_number": 1,
@@ -25,16 +25,16 @@
             "enemies": [
                 {
                     "type": "Enemigo1",
-                    "count": 5
+                    "count": 1
                 },
                 {
                     "type": "Enemigo2",
-                    "count": 3
+                    "count": 4
                 }
             ],
             "spawn_interval": 1,
             "duration": 10.0,
-            "increase_based_speed": 1.5
+            "increase_based_speed": 1.2
         },
         {
             "wave_number": 2,
@@ -42,12 +42,8 @@
             "image": "assets/backgrounds/BG-3.png",
             "enemies": [
                 {
-                    "type": "Enemigo1",
-                    "count": 2
-                },
-                {
                     "type": "Enemigo2",
-                    "count": 6
+                    "count": 5
                 },
                 {
                     "type": "Enemigo3",
@@ -64,16 +60,16 @@
             "image": "assets/backgrounds/BG-4.png",
             "enemies": [
                 {
-                    "type": "Enemigo2",
-                    "count": 1
+                    "type": "Enemigo1",
+                    "count": 2
                 },
                 {
-                    "type": "Enemigo3",
-                    "count": 1
+                    "type": "Enemigo2",
+                    "count": 2
                 },
                 {
                     "type": "Enemigo4",
-                    "count": 2
+                    "count": 1
                 }
             ],
             "spawn_interval": 0.2,
@@ -86,20 +82,12 @@
             "image": "assets/backgrounds/BG-5.png",
             "enemies": [
                 {
-                    "type": "Enemigo1",
-                    "count": 3
-                },
-                {
-                    "type": "Enemigo2",
-                    "count": 2
-                },
-                {
                     "type": "Enemigo3",
-                    "count": 3
+                    "count": 1
                 },
                 {
                     "type": "Enemigo4",
-                    "count": 2
+                    "count": 3
                 }
             ],
             "spawn_interval": 0.1,

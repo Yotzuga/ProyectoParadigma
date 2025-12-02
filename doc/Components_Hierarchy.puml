@@ -1,0 +1,62 @@
+@startuml Components_Hierarchy
+!theme plain
+
+abstract class Component {
+    +GetType(): type_info
+    +virtual ~Component()
+}
+
+class TransformComponent {
+    +x: float
+    +y: float
+    +vx: float
+    +vy: float
+    +rotation: float
+}
+
+class SpriteComponent {
+    +texture: SDL_Texture*
+    +srcRect: SDL_Rect
+    +destRect: SDL_Rect
+    +isVisible: bool
+}
+
+class ColliderComponent {
+    +width: float
+    +height: float
+    +type: ColliderType
+}
+
+class HealthComponent {
+    +currentHealth: int
+    +maxHealth: int
+    +invulnerabilityTimer: float
+}
+
+class PlayerComponent {
+    +speed: float
+    +jumpPower: float
+    +isJumping: bool
+}
+
+class EnemyComponent {
+    +enemyType: int
+    +aiState: int
+    +targetEntity: EntityID
+}
+
+class ObstacleComponent {
+    +isStatic: bool
+    +obstacleType: int
+}
+
+Component <|-- TransformComponent : hereda
+Component <|-- SpriteComponent : hereda
+Component <|-- ColliderComponent : hereda
+Component <|-- HealthComponent : hereda
+Component <|-- PlayerComponent : hereda
+Component <|-- EnemyComponent : hereda
+Component <|-- ObstacleComponent : hereda
+
+
+@enduml

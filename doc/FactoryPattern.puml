@@ -1,0 +1,125 @@
+@startuml FactoryPattern
+!theme plain
+
+package "Factory Pattern - Enemy Creation" {
+    
+    interface "IEnemyFactory" {
+        + Create(): Enemy*
+        + GetType(): EnemyType
+    }
+    
+    class "BasicEnemyFactory" {
+        + Create(): Enemy*
+            // Crea BasicEnemy
+            // health = 20
+            // speed = 60
+            // sprite = Enemy1.png
+        
+        + GetType(): EnemyType
+            return BASIC
+    }
+    
+    class "ToughEnemyFactory" {
+        + Create(): Enemy*
+            // Crea ToughEnemy
+            // health = 50
+            // speed = 40
+            // sprite = Enemy2.png
+        
+        + GetType(): EnemyType
+            return TOUGH
+    }
+    
+    class "FastEnemyFactory" {
+        + Create(): Enemy*
+            // Crea FastEnemy
+            // health = 10
+            // speed = 100
+            // sprite = Enemy2.png
+        
+        + GetType(): EnemyType
+            return FAST
+    }
+    
+    class "EnemyFactoryRegistry" {
+        - factories: map<type, factory>
+        --
+        + Register(type, factory)
+        + CreateEnemy(type): Enemy*
+        + GetFactory(type): IFactory*
+    }
+    
+    IEnemyFactory <|.. BasicEnemyFactory
+    IEnemyFactory <|.. ToughEnemyFactory
+    IEnemyFactory <|.. FastEnemyFactory
+    
+    EnemyFactoryRegistry o-- IEnemyFactory
+    
+    note right of EnemyFactoryRegistry
+        ✓ Centralizar creación
+        ✓ Fácil agregar nuevos tipos
+        ✓ Configuración por tipo
+        ✓ Sin hardcoding en spawn
+    end note
+}
+
+== UTILIZACIÓN ==
+
+participant "SpawnSystem" as SS
+participant "Registry" as REG
+participant "Factory" as FAC
+participant "Enemy" as ENM
+
+== SPAWN ==
+
+SS -> SS: enemyConfig = wave.enemy[i]
+note right of SS
+    type = BASIC / TOUGH / FAST
+end note
+
+SS -> REG: factory = GetFactory(type)
+note right of REG
+    factories["BASIC"] → BasicEnemyFactory
+end note
+
+SS -> FAC: enemy = Create()
+note right of FAC
+    new Enemy()
+    SetComponent(Health, 20)
+    SetComponent(Sprite, "Enemy1")
+    SetComponent(Speed, 60)
+    return enemy
+end note
+
+FAC --> SS: enemy*
+
+SS -> SS: Registrar en world
+
+== VENTAJAS ==
+
+note over SS, ENM
+    ❌ ANTES (sin factory):
+    
+    if (type == BASIC):
+        enemy = new Enemy()
+        enemy.health = 20
+        enemy.speed = 60
+        enemy.sprite = "Enemy1"
+    else if (type == TOUGH):
+        enemy = new Enemy()
+        enemy.health = 50
+        enemy.speed = 40
+        enemy.sprite = "Enemy2"
+    // ... repetido en múltiples sistemas
+    
+    ✓ AHORA (con factory):
+    
+    enemy = factory->Create()
+    
+    - Centralizado
+    - Una fuente de verdad
+    - Fácil de cambiar configuración
+    - Escalable
+end note
+
+@enduml

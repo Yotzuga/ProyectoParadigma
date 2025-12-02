@@ -1,0 +1,88 @@
+@startuml EnemySpawn
+!theme plain
+
+participant "WaveSystem" as WAVE
+participant "SpawnSystem" as SPAWN
+participant "World" as W
+participant "Entity" as E
+participant "EnemyComponent" as EC
+participant "EnemyAISystem" as AI
+
+== WAVE SPAWN EVENT ==
+
+WAVE -> WAVE: Timer elapsed
+note right of WAVE
+    Wave countdown finished
+    time >= wave.spawnTime
+end note
+
+WAVE -> W: EmitEvent(SpawnWaveEvent)
+note right of W
+    Event enqueued
+    No procesado aún
+end note
+
+== EVENTO PROCESADO (próximo frame) ==
+
+W -> SPAWN: ProcessSpawnWaveEvent()
+note right of SPAWN
+    Iterates wave.enemies
+    For each enemyConfig
+end note
+
+loop For each enemy in wave
+    SPAWN -> W: CreateEntity()
+    W -> E: new Entity(id)
+    
+    SPAWN -> E: AttachComponent(Transform)
+    note right of E
+        pos = {x, y}
+        vel = {0, 0}
+    end note
+    
+    SPAWN -> E: AttachComponent(Sprite)
+    note right of E
+        texture = enemyTexture
+        sprite_idx = 0
+    end note
+    
+    SPAWN -> E: AttachComponent(Enemy)
+    EC -> EC: Initialize()
+    note right of EC
+        m_HP = config.hp
+        m_Speed = config.speed
+        m_State = IDLE
+        m_PathIndex = 0
+    end note
+    
+    SPAWN -> E: AttachComponent(Collider)
+    note right of E
+        bounds = {x, y, w, h}
+        isActive = true
+    end note
+    
+    SPAWN -> E: AttachComponent(Health)
+    note right of E
+        m_CurrentHealth = config.hp
+    end note
+    
+    SPAWN -> W: RegisterEntity(entity)
+    note right of W
+        m_Entities[id] = entity
+        m_EntityMap (HashMap)
+    end note
+    
+    AI -> E: CacheComponent<EnemyComponent>()
+    note right of AI
+        m_EnemyCache[id] = component
+        O(1) lookup siguiente frame
+    end note
+end
+
+note over WAVE, AI
+    SPAWNING COMPLETADO
+    Todas enemigos en mundo
+    Listo para EnemyAISystem
+end note
+
+@enduml

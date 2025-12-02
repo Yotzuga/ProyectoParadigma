@@ -20,6 +20,7 @@
  *
  * Parámetros:
  * - playerInvulnerabilityDuration: Segundos de protección tras daño (típicamente 1.0)
+ * - onPlayerDeath: Callback ejecutado cuando el jugador muere
  */
 class DamageSystem : public ISystem
 {

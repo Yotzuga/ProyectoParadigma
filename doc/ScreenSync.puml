@@ -1,0 +1,93 @@
+@startuml ScreenSync
+!theme plain
+
+participant "Game" as GAME
+participant "Clock" as CLK
+participant "V-Sync" as VS
+participant "Monitor" as MON
+
+== SCENARIO 1: SIN V-SYNC ==
+
+note right of GAME
+    Render loop ejecuta tan rápido
+    como sea posible
+    
+    Típicamente: 10,000+ FPS posible
+end note
+
+loop 1000 veces / seg
+    GAME -> CLK: frameTime = now()
+    GAME -> GAME: Render()
+    CLK -> CLK: Present buffer
+end
+
+note right of MON
+    Monitor actualiza @ 60 Hz
+    (cada 16.67 ms)
+    
+    Pero GAME renderiza cada 0.1ms
+    
+    Resultado: TEARING
+    Pantalla muestra 2 frames
+    a mitad de cada refresh
+    
+    ❌ Malo para experiencia
+end note
+
+== SCENARIO 2: CON V-SYNC HABILITADO ==
+
+note right of VS
+    V-Sync = Vertical Sync
+    Sincroniza con monitor refresh rate
+end note
+
+GAME -> VS: Present(buffer)
+note right of VS
+    Esperar VSYNC signal
+    del monitor
+end note
+
+VS -> MON: ¿Refresh listo?
+note right of MON
+    Monitor está entre frames
+    Acababa de mostrar frame anterior
+    Listo para nuevo
+end note
+
+MON --> VS: ✓ VSYNC Signal
+
+VS -> GAME: Buffer presentado
+note right of GAME
+    Frame visible al monitor
+    en sincronización perfecta
+end note
+
+note right of MON
+    Monitor muestra 1 frame completo
+    Sin tearing
+    Sincronización suave
+    
+    ✓ Bueno para experiencia
+    
+    Limitación: FPS = Monitor Hz
+    60 Hz Monitor = máx 60 FPS
+end note
+
+== PROYECTO EXAMEN3 ==
+
+note over GAME, MON
+    ✓ V-SYNC HABILITADO
+    ✓ 60 FPS limit (60 Hz monitor)
+    
+    En SDL3:
+    SDL_SetRenderVSync(renderer, 1)
+    
+    Resultado: Pantalla suave
+    Sin tearing
+    Sincronizado con monitor
+    
+    Performance: 16.67 ms por frame
+    Con 33% headroom → ~11 ms de lógica
+end note
+
+@enduml

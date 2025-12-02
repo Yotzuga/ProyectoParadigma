@@ -1,0 +1,95 @@
+@startuml SpawnFlow
+!theme plain
+
+participant "WaveSystem" as WS
+participant "World" as W
+participant "SpawnSystem" as SS
+participant "EnemyAISystem" as AI
+participant "Entity Pool" as POOL
+
+== ONDA INICIA ==
+
+WS -> WS: wave.spawnTime reached
+note right of WS
+    Config: spawn cada 2 segundos
+    nextSpawnTime = 2.0s
+    time = 2.0s ✓
+end note
+
+WS -> W: EmitEvent(SpawnWaveEvent)
+note right of W
+    event.enemyType = TIPO_A
+    event.count = 3
+    Evento enqueued
+end note
+
+== UPDATE PHASE ==
+
+note over WS, AI
+    Evento no procesado aún
+    Resto de lógica continúa
+    con enemigos anteriores (N)
+end note
+
+== RENDER PHASE ==
+
+note over WS, AI
+    RenderSystem dibuja N enemigos
+    HUDSystem muestra UI
+end note
+
+== EVENT PROCESSING ==
+
+W -> W: ProcessEvents()
+W -> W: event = SpawnWaveEvent
+
+W -> SS: HandleSpawnWaveEvent(event)
+note right of SS
+    type = event.enemyType
+    count = 3
+end note
+
+loop Para 3 enemigos a crear
+
+    SS -> POOL: entity = GetOrCreateEntity()
+    note right of POOL
+        Obtener entidad reutilizable
+        O crear nueva si pool vacío
+    end note
+
+    SS -> POOL: ResetComponents()
+    note right of POOL
+        Limpiar estado anterior
+        (si fue reutilizada)
+    end note
+
+    SS -> POOL: SetPosition(spawn_config.x, spawn_config.y)
+    SS -> POOL: SetHealth(type.maxHP)
+    SS -> POOL: SetSpeed(type.speed)
+
+    SS -> W: RegisterEntity(entity)
+    note right of W
+        entity.id = GetNextId()
+        m_Entities[id] = entity
+        m_EntityMap[id] = entity
+    end note
+
+    AI -> W: CacheComponent(entity, EnemyComponent)
+    note right of AI
+        m_EnemyCache[id] = component
+        O(1) lookup en updates futuros
+    end note
+
+end
+
+== SIGUIENTE FRAME ==
+
+note over WS, AI
+    N+3 enemigos ahora en mundo
+    IA procesará 3 nuevos enemigos
+    
+    Spawn fue exitoso
+    Seamless integration
+end note
+
+@enduml

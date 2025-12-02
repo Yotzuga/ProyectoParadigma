@@ -1,0 +1,155 @@
+@startuml WaveCycle
+!theme plain
+
+participant "WaveManagerSystem" as WMgr
+participant "SpawnSystem" as SS
+participant "World" as W
+participant "EnemyAISystem" as AI
+participant "DamageSystem" as DMG
+participant "HUDSystem" as HUD
+participant "JSON Config" as JSON
+
+== INICIALIZACIÓN DEL JUEGO ==
+
+WMgr -> JSON: LoadWavesConfig()
+note right of JSON
+    Lee Waves.json
+    Para cada onda:
+    - enemies list
+    - spawn positions
+    - descriptions
+end note
+
+WMgr -> WMgr: m_CurrentWave = 0
+WMgr -> WMgr: m_WaveTimer = 0
+note right of WMgr
+    Estado inicial
+end note
+
+== ONDA 0 COMIENZA ==
+
+WMgr -> WMgr: WaveManagerSystem.Update(dt)
+note right of WMgr
+    m_WaveTimer += dt
+end note
+
+alt m_WaveTimer >= SPAWN_DELAY
+    WMgr -> SS: Spawnear enemigos de onda 0
+    note right of SS
+        Lee config de Waves.json
+        Para cada enemigo:
+        - Crear Entity
+        - Agregar TransformComponent (x, y, vx=0, vy=0)
+        - Agregar SpriteComponent
+        - Agregar ColliderComponent
+        - Agregar HealthComponent
+        - Agregar EnemyComponent (type, aiState)
+    end note
+    
+    SS -> W: AddEntity(enemy1, enemy2, enemy3)
+    note right of W
+        Insertar en unordered_map<EntityID, Entity*>
+        O(1) insertion
+    end note
+    
+    WMgr -> WMgr: m_AllEnemiesSpawned = true
+end
+
+== ONDA ACTIVA (Combat Phase) ==
+
+loop Mientras no todos_enemigos_derrotados
+
+    note over AI, DMG
+        Cada frame
+    end note
+    
+    AI -> W: GetEntitiesWithComponent<EnemyComponent>()
+    note right of AI
+        Itera sobre enemigos vivos
+    end note
+    
+    AI -> AI: Para cada enemigo: Calcular dirección hacia Player
+    note right of AI
+        direction = normalize(Player.pos - Enemy.pos)
+        velocity = direction * speed
+        Usa Lerp para suavidad
+    end note
+    
+    note over WMgr, HUD
+        Colisiones, daño, movimiento...
+    end note
+    
+    DMG -> W: CheckEnemyHealth()
+    note right of DMG
+        Si health <= 0:
+        - Marcar como muerto
+        - Remover de mundo
+    end note
+    
+    WMgr -> WMgr: enemyCount = GetLiveEnemyCount()
+    
+    HUD -> HUD: Renderizar: "Enemies: X / Total"
+    
+end
+
+note over WMgr
+    Todos los enemigos derrotados
+end note
+
+== ONDA COMPLETADA ==
+
+WMgr -> WMgr: m_CurrentWave++
+note right of WMgr
+    currentWave = 1
+end note
+
+WMgr -> WMgr: m_WaveTimer = 0
+WMgr -> WMgr: m_AllEnemiesSpawned = false
+note right of WMgr
+    Reset para siguiente onda
+end note
+
+HUD -> HUD: Renderizar: "Wave Complete!"
+note right of HUD
+    Mostrar progreso
+end note
+
+== CARGAR OBSTÁCULOS SIGUIENTE ONDA ==
+
+WMgr -> JSON: LoadObstaclesByPhase(currentWave)
+note right of JSON
+    Lee ObstaculosByFase.json
+    fase_0 → 5 obstáculos
+    fase_1 → 5 obstáculos
+    etc.
+end note
+
+SS -> W: SpawnObstacles()
+note right of W
+    Crear Obstacle entities
+    Con Transform + Sprite + Collider
+end note
+
+== SIGUIENTE ONDA ==
+
+WMgr -> WMgr: if (currentWave >= 5)
+WMgr -> WMgr: GAME WON!
+note right of WMgr
+    Si se completaron 5 ondas
+end note
+
+WMgr -> WMgr: else
+WMgr -> WMgr: Repetir desde ONDA COMIENZA
+note right of WMgr
+    Siguiente onda con más dificultad
+end note
+
+== SIGUIENTE ONDA ==
+
+note over WM, HUD
+    Bucle continúa
+    Onda 2 inicia igual que Onda 1
+    Más enemigos, más difícil
+end note
+
+@enduml

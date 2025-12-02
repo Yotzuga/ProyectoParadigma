@@ -1,0 +1,88 @@
+@startuml TemplateMethodPattern
+!theme plain
+
+package "Template Method Pattern - Systems" {
+    
+    abstract class "ISystem" {
+        # world: World*
+        --
+        + {abstract} Update(dt): void
+        + {abstract} Render(): void
+    }
+    
+    class "MovementSystem" {
+        # entityCache: map
+        --
+        + Update(dt)
+            for entity in cache:
+                vel = GetComponent(Velocity)
+                transform = GetComponent(Transform)
+                
+                newPos = transform.pos + vel * dt
+                transform.SetPosition(newPos)
+        
+        + Render()
+            // Empty for movement
+    }
+    
+    class "CollisionSystem" {
+        # colliderCache: map
+        --
+        + Update(dt)
+            for pair in entities:
+                if (Collide(pair)):
+                    EmitEvent(CollisionEvent)
+        
+        + Render()
+            // Debug visualization
+    }
+    
+    class "RenderSystem" {
+        # spriteCache: map
+        --
+        + Update(dt)
+            // No-op for render
+        
+        + Render()
+            for entity in cache:
+                sprite = GetComponent(Sprite)
+                transform = GetComponent(Transform)
+                SDL_RenderTexture(sprite, transform.pos)
+    }
+    
+    ISystem <|-- MovementSystem
+    ISystem <|-- CollisionSystem
+    ISystem <|-- RenderSystem
+    
+    note right of ISystem
+        Template: Update() + Render()
+        
+        Cada sistema:
+        - Implementa según necesita
+        - Respeta interfaz
+        - Usa componentes apropiados
+        
+        ✓ Polimorfismo
+        ✓ Extensión sin modificación
+    end note
+}
+
+== GAME LOOP ==
+
+note over ISystem, RenderSystem
+    En Game::Run():
+    
+    for system in systems:
+        system->Update(dt)
+    
+    for system in systems:
+        system->Render()
+    
+    Cada sistema sigue template
+    pero implementación diferente
+    
+    ✓ Uniforme desde Game
+    ✓ Flexible en detalles
+end note
+
+@enduml

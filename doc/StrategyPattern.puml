@@ -1,0 +1,75 @@
+@startuml StrategyPattern
+!theme plain
+
+package "Strategy Pattern - Enemy AI" {
+    
+    interface "IAIStrategy" {
+        + Execute(enemy, dt): void
+    }
+    
+    class "PatrolStrategy" {
+        - waypoints: []
+        - currentIndex: int
+        --
+        + Execute(enemy, dt)
+            // Move to waypoint
+    }
+    
+    class "ChaseStrategy" {
+        - target: Entity
+        - chaseDistance: float
+        --
+        + Execute(enemy, dt)
+            // Chase player
+    }
+    
+    class "AvoidStrategy" {
+        - obstacle: Entity
+        - avoidDistance: float
+        --
+        + Execute(enemy, dt)
+            // Avoid obstacle
+    }
+    
+    class "EnemyComponent" {
+        - strategy: IAIStrategy*
+        --
+        + SetStrategy(strategy)
+        + Execute(dt)
+    }
+    
+    IAIStrategy <|.. PatrolStrategy
+    IAIStrategy <|.. ChaseStrategy
+    IAIStrategy <|.. AvoidStrategy
+    
+    EnemyComponent --> IAIStrategy: uses
+    
+    note right of EnemyComponent
+        ✓ Polimorfismo
+        ✓ Strategies intercambiables
+        ✓ Nueva estrategia sin
+          modificar Enemy
+        ✓ Runtime switching
+    end note
+}
+
+== IMPLEMENTACIÓN ==
+
+note over IAIStrategy, AvoidStrategy
+    En EnemyAISystem::Execute():
+    
+    for enemy in enemies:
+        strategy = enemy.GetStrategy()
+        strategy->Execute(enemy, dt)
+    
+    Si enemigo entra chase zone:
+        enemy->SetStrategy(new ChaseStrategy())
+    
+    Si enemigo sale:
+        enemy->SetStrategy(new PatrolStrategy())
+    
+    ✓ Cambio de comportamiento
+      sin modificar EnemyAISystem
+end note
+
+@enduml

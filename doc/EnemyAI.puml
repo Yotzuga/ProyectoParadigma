@@ -1,0 +1,105 @@
+@startuml EnemyAI
+!theme plain
+
+participant "EnemyAISystem" as AI
+participant "World" as W
+participant "EnemyComponent" as EC
+participant "TransformComponent" as TC
+participant "Entity" as E
+
+== FRAME UPDATE ==
+
+AI -> W: GetEnemyCache()
+note right of W
+    HashMap<entityId, EnemyComponent*>
+    O(1) lookup
+end note
+
+loop For each cached enemy
+
+    AI -> EC: GetState()
+    note right of EC
+        m_State = PATROL, CHASE, etc.
+    end note
+
+    alt State == PATROL
+        
+        EC -> EC: GetCurrentWaypoint()
+        note right of EC
+            m_PathIndex = 0
+            m_WayPoints[0] = {100, 200}
+        end note
+
+        EC -> TC: GetPosition()
+        TC --> AI: pos = {50, 200}
+
+        AI -> AI: CalculateLerp()
+        note right of AI
+            targetPos = {100, 200}
+            currentPos = {50, 200}
+            
+            direction = normalize(target - current)
+            direction = {1, 0}
+            
+            distance = length(target - current)
+            distance = 50.0
+            
+            speed = 60.0 (píxeles/seg)
+            dt = 0.01667 (16.67ms)
+            
+            moveAmount = speed * dt = 1.0
+            
+            IF distance <= moveAmount:
+                newPos = targetPos
+                pathIndex++
+            ELSE:
+                newPos = current + direction * moveAmount
+        end note
+
+        note right of AI
+            newPos = {50, 200} + {1, 0} * 1.0
+            newPos = {51, 200}
+        end note
+
+        EC -> TC: SetPosition({51, 200})
+        note right of TC
+            pos = {51, 200}
+            Próximo frame: otro Lerp step
+        end note
+
+    else State == CHASE
+        
+        note right of AI
+            Buscar player en world
+            Calcular Lerp hacia player
+        end note
+
+    end
+
+end
+
+== SIGUIENTE FRAME ==
+
+note over AI, TC
+    Mismo proceso
+    Enemigo continúa Lerp suave
+    Hacia siguiente waypoint o player
+    
+    Sin saltos abruptos
+    Movimiento fluido
+end note
+
+== PROBLEMA: SIN LERP ==
+
+note right of AI
+    ❌ Incorrecto:
+    if (canMove) {
+        SetPosition(WayPoint[pathIndex])
+        pathIndex++
+    }
+    
+    Resultado: Salto instantáneo
+    entre waypoints (no fluido)
+end note
+
+@enduml

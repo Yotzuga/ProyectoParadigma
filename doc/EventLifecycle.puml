@@ -1,0 +1,110 @@
+@startuml EventLifecycle
+!theme plain
+
+participant "System A" as A
+participant "EventQueue" as Q
+participant "World" as W
+participant "System B" as B
+participant "Memory" as MEM
+
+== CREATION ==
+
+A -> Q: EmitEvent(MyEvent)
+note right of Q
+    event = MyEvent()
+    event.data = {...}
+    event.timestamp = now()
+    m_Events.push_back(event)
+    
+    ESTADO: Enqueued
+end note
+
+== FRAME CONTINUES ==
+
+note over A, Q
+    Update phase continúa
+    Otros sistemas ejecutan
+    Evento aún NO procesado
+    
+    Previene ciclos infinitos
+    Mantiene orden
+end note
+
+A -> Q: EmitEvent(AnotherEvent)
+note right of Q
+    m_Events.push_back(AnotherEvent)
+    Queue ahora:
+    [MyEvent, AnotherEvent]
+end note
+
+== RENDER PHASE ==
+
+note over A, MEM
+    Sistema render ejecuta
+    Todos actualizaciones finalizadas
+    Estado del mundo completo
+end note
+
+== EVENT PROCESSING ==
+
+W -> Q: ProcessEvents()
+note right of W
+    ESTO ocurre después de render
+    En WaveManagerSystem::render()
+end note
+
+loop while (!m_Events.empty())
+
+    W -> Q: event = m_Events.front()
+    Q --> W: MyEvent
+    
+    note right of W
+        Extraer primer evento
+    end note
+    
+    W -> W: Router(event)
+    
+    alt event.type == COLLISION
+        W -> B: HandleCollision(event)
+        note right of B
+            System B procesa
+            Puede emitir nuevos eventos
+        end note
+        
+    else event.type == DAMAGE
+        W -> B: HandleDamage(event)
+        
+    else event.type == SPAWN
+        W -> B: HandleSpawn(event)
+    end
+    
+    W -> MEM: event destructor
+    note right of MEM
+        Evento se elimina
+        Memoria liberada
+    end note
+    
+    W -> Q: m_Events.pop_front()
+    note right of Q
+        Queue: [AnotherEvent]
+    end note
+
+end
+
+== COMPLETADO ==
+
+W -> Q: m_Events.empty()
+note right of W
+    No quedan eventos
+    ProcessEvents() termina
+end note
+
+== SIGUIENTE FRAME ==
+
+note over A, MEM
+    Frame N+1 comienza
+    Nuevo update() con estado
+    afectado por eventos de Frame N
+end note
+
+@enduml

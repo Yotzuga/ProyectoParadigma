@@ -1,0 +1,49 @@
+@startuml ClassicGameLoop
+!theme plain
+
+control "GameLoop" as LOOP
+database "GameState" as STATE
+entity "Graphics" as GFX
+
+== FRAME N ==
+
+LOOP -> STATE: input = GetInput()
+note right of STATE
+    Keyboard, mouse
+end note
+
+LOOP -> STATE: Update(input, dt)
+note right of STATE
+    Cambiar game state
+    Mover entities
+    Calcular logic
+end note
+
+LOOP -> GFX: Render()
+note right of GFX
+    Dibujar todo a pantalla
+    basado en STATE
+end note
+
+LOOP -> GFX: Present()
+note right of GFX
+    Mostrar frame al monitor
+end note
+
+== PROBLEMA CLÁSICO ==
+
+note right of LOOP
+    ❌ Input procesado
+       una vez por update
+       
+    ❌ Si evento entre frames:
+       Se pierde
+       
+    ❌ Tearing si monitor
+       Y buffer no sincronizado
+       
+    ❌ NO frame-rate independent
+       (sin deltaTime)
+end note
+
+@enduml

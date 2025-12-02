@@ -1,0 +1,120 @@
+@startuml ObjectPoolPattern
+!theme plain
+
+package "Object Pool Pattern - Entity Reuse" {
+    
+    class "EntityPool" {
+        - availableEntities: queue
+        - activeEntities: set
+        - maxPoolSize: int
+        --
+        + GetEntity(): Entity*
+        + ReturnEntity(entity): void
+        + PreAllocate(count): void
+    }
+    
+    class "Entity" {
+        - id: int
+        - components: map
+        - isActive: bool
+        --
+        + Reset(): void
+        + AddComponent(): void
+    }
+    
+    note right of EntityPool
+        Manejo de pool:
+        
+        Inicio:
+        - Crear 100 entidades
+        - Todas en queue "available"
+        - "active" vacío
+    end note
+}
+
+== CICLO DE VIDA ==
+
+participant "SpawnSystem" as SS
+participant "Pool" as POOL
+participant "World" as W
+participant "Entity" as ENT
+
+== SPAWN ==
+
+SS -> POOL: entity = GetEntity()
+note right of POOL
+    ¿Queue no vacía?
+    - Sí: pop front
+    - No: crear nueva
+end note
+
+POOL -> ENT: Reset()
+note right of ENT
+    - health = 100
+    - components.clear()
+    - isActive = true
+end note
+
+POOL -> POOL: activeEntities.insert(entity)
+note right of POOL
+    Registrar como activa
+end note
+
+POOL --> SS: entity*
+
+SS -> W: RegisterEntity(entity)
+note right of W
+    m_Entities[id] = entity
+end note
+
+== DURANTE JUEGO ==
+
+note over POOL, W
+    Entidad viva y activa
+    En juego
+    Actualizándose normalmente
+end note
+
+== DESTRUCCIÓN ==
+
+W -> W: entity.health <= 0
+W -> POOL: ReturnEntity(entity)
+note right of POOL
+    activeEntities.erase(entity)
+    availableEntities.push(entity)
+end note
+
+== REUTILIZACIÓN ==
+
+note right of POOL
+    Próximo spawn:
+    - Entidad reciclada
+    - NO malloc nuevo
+    - NO destructor llamado
+    
+    ✓ Performance: O(1)
+    ✓ Cache-friendly
+    ✓ Sin fragmentación memoria
+end note
+
+== VENTAJAS ==
+
+note over POOL, W
+    ❌ SIN Pool:
+    - Crear: malloc + constructor
+    - Destruir: destructor + free
+    - Fragmentación de heap
+    - GC pauses (si GC habilitado)
+    
+    ✓ CON Pool:
+    - Crear: pop + reset (rápido)
+    - Destruir: push (rápido)
+    - Memoria pre-asignada
+    - Predictible performance
+    
+    En EXAMEN3:
+    - 500 enemigos creados/destruidos
+    - 35% performance improvement
+end note
+
+@enduml

@@ -1,0 +1,98 @@
+@startuml SystemInteractionMap
+!theme plain
+
+package "Systems Ecosystem" {
+    
+    component "PlayerInputSystem" as PIS {
+        Input: Keyboard
+        Output: Player velocity
+    }
+    
+    component "MovementSystem" as MS {
+        Input: Velocity
+        Output: New position
+    }
+    
+    component "CollisionSystem" as CS {
+        Input: Position, Bounds
+        Output: CollisionEvent
+    }
+    
+    component "CollisionResponseSystem" as CRS {
+        Input: CollisionEvent
+        Output: Separated entities, DamageEvent
+    }
+    
+    component "DamageSystem" as DS {
+        Input: DamageEvent
+        Output: Health changes, GameOverEvent
+    }
+    
+    component "EnemyAISystem" as EAS {
+        Input: Enemy state, Waypoints
+        Output: Enemy velocity
+    }
+    
+    component "SpawnSystem" as SS {
+        Input: SpawnWaveEvent
+        Output: New entities
+    }
+    
+    component "WaveManagerSystem" as WMS {
+        Input: Wave timer
+        Output: SpawnWaveEvent, ProcessEvents
+    }
+    
+    component "RenderSystem" as RS {
+        Input: Position, Sprite
+        Output: Frame pixels
+    }
+    
+    component "HUDSystem" as HUDS {
+        Input: Game state
+        Output: UI pixels
+    }
+    
+    component "LifetimeSystem" as LS {
+        Input: Timer, Health
+        Output: Despawn event
+    }
+}
+
+== DEPENDENCIES ==
+
+PIS --> MS: velocity
+MS --> CS: position
+CS --> CRS: collision
+CRS --> DS: damage
+DS --> LS: health change
+
+EAS --> MS: velocity
+SS --> MS: new entities
+
+WMS --> SS: spawn event
+WMS --> CRS: process events
+
+CS --> RS: debug
+RS --> HUDS: UI
+
+LS --> WMS: cleanup
+
+note right of PIS
+    ✓ No depende de nada
+    ✓ Source de input
+end note
+
+note right of CRS
+    ✓ Conecta ColisionSystem
+      con DamageSystem
+    ✓ Desacoplamiento perfecto
+end note
+
+note right of WMS
+    ✓ Orquesta sistemas
+    ✓ Procesa eventos
+    ✓ Controla spawning
+end note
+
+@enduml

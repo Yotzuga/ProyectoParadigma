@@ -1,0 +1,115 @@
+@startuml ECSArchitectureExtended
+!theme plain
+
+package "ECS Core Infrastructure" {
+    
+    class "Entity" {
+        - m_Id: int
+        - m_Components: map<type, Component*>
+        --
+        + GetComponent<T>(): T*
+        + AttachComponent<T>(): void
+    }
+    
+    class "Component" {
+        # m_Parent: Entity*
+        --
+        + {abstract} Init(): void
+        + {abstract} Shutdown(): void
+    }
+    
+    class "ISystem" {
+        # m_World: World*
+        --
+        + {abstract} Init(): void
+        + {abstract} Update(dt): void
+        + {abstract} Render(): void
+        + {abstract} Shutdown(): void
+    }
+    
+    class "World" {
+        - m_Entities: map<id, Entity*>
+        - m_EntityMap: unordered_map (HashMap)
+        - m_Systems: vector<ISystem*>
+        - m_EventQueue: queue<Event>
+        --
+        + CreateEntity(): Entity*
+        + RegisterEntity(entity): void
+        + GetEntity(id): Entity*
+        + EmitEvent(event): void
+        + ProcessEvents(): void
+    }
+    
+    class "Event" {
+        - m_Type: EventType
+        - m_Timestamp: float
+        --
+        + {abstract} GetType(): EventType
+    }
+    
+    class "Game" {
+        - m_World: World
+        - m_Running: bool
+        - m_FrameTime: float
+        --
+        + Init(): void
+        + Run(): void
+        + Shutdown(): void
+    }
+    
+    Entity "1" *-- "many" Component
+    Component <-- ISystem
+    World "1" o-- "many" Entity
+    World "1" o-- "many" ISystem
+    World "1" *-- "many" Event
+    Game "1" *-- "1" World
+    
+    note right of Entity
+        ✓ Contenedor de componentes
+        ✓ ID único
+        ✓ Composición flexible
+    end note
+    
+    note right of ISystem
+        ✓ Procesa componentes
+        ✓ Actualiza estado
+        ✓ Procesa eventos
+        ✓ Template method pattern
+    end note
+    
+    note right of World
+        ✓ Gestor entidades
+        ✓ Queue de eventos
+        ✓ Router de sistemas
+        ✓ HashMap O(1) lookups
+    end note
+}
+
+== FLUJO ==
+
+participant "Game" as G
+participant "World" as W
+participant "ISystem" as S
+
+G -> S: Init()
+note right of S
+    Inicializar cache
+    Registrar listeners
+end note
+
+loop GameLoop
+    G -> S: Update(dt)
+    note right of S
+        Procesar lógica
+        Emitir eventos
+    end note
+    
+    G -> S: Render()
+    note right of S
+        Dibujar sprites
+        Procesar eventos
+        (después de render)
+    end note
+end
+
+@enduml

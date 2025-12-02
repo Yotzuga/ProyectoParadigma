@@ -89,6 +89,10 @@ build_include:
 		$(INCLUDES) \
 		-o ./bin/DamageSystem.o
 
+	g++ -c ./src/Systems/MusicSystem.cpp \
+		$(INCLUDES) \
+		-o ./bin/MusicSystem.o
+
 	g++ -c ./src/Systems/EnemyAISystem.cpp \
 		$(INCLUDES) \
 		-o ./bin/EnemyAISystem.o
@@ -112,6 +116,10 @@ build_include:
 	g++ -c ./src/Systems/WaveManagerSystem.cpp \
 		$(INCLUDES) \
 		-o ./bin/WaveManagerSystem.o
+
+	g++ -c ./src/Systems/MusicSystem.cpp \
+		$(INCLUDES) \
+		-o ./bin/MusicSystem.o
 
 link:
 	g++ ./bin/*.o \

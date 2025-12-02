@@ -1,0 +1,140 @@
+@startuml PlayerVsEnemyCollisionFlow
+!theme plain
+
+participant "Game Loop" as GL
+participant "MovementSystem" as MOV
+participant "CollisionSystem" as CS
+participant "CollisionResponseSystem" as CRS
+participant "DamageSystem" as DMG
+participant "World" as W
+participant "Entities" as ENT
+
+== FRAME ==
+
+GL -> MOV: Update(dt)
+note right of MOV
+    Todos se mueven
+    Player: { 960, 200 }
+    Enemy: { 950, 200 }
+end note
+
+GL -> CS: Update(dt)
+
+== COLLISION DETECTION ==
+
+CS -> CS: for pair in entidades
+note right of CS
+    Check player vs enemy1
+    bounds1 = { 960, 200, 40, 40 }
+    bounds2 = { 950, 200, 40, 40 }
+    
+    X: 960 < 950+40? YES (960 < 990)
+    X: 960+40 > 950? YES (1000 > 950)
+    Y: 200 < 200+40? YES
+    Y: 200+40 > 200? YES
+    
+    ¡COLLISION!
+end note
+
+CS -> W: EmitEvent(CollisionEvent)
+note right of W
+    event.entity1 = Player
+    event.entity2 = Enemy1
+    m_Events.push_back(event)
+end note
+
+== NEXT SYSTEMS ==
+
+GL -> CRS: Update(dt)
+note right of CRS
+    Pero evento no procesado aún
+    Ignore collision
+end note
+
+GL -> DMG: Update(dt)
+note right of DMG
+    No damage event yet
+end note
+
+== RENDER ==
+
+GL -> GL: RenderSystem, HUDSystem
+
+GL -> GL: WaveManagerSystem::render()
+note right of GL
+    En render() llamar a:
+    World->ProcessEvents()
+end note
+
+== EVENT PROCESSING ==
+
+W -> W: ProcessEvents()
+note right of W
+    while (!m_Events.empty()):
+end note
+
+W -> W: event = CollisionEvent
+
+W -> CRS: HandleCollisionEvent(event)
+note right of CRS
+    player_pos = { 960, 200 }
+    enemy_pos = { 950, 200 }
+    
+    direction = normalize(
+        player_pos - enemy_pos
+    ) = { 1, 0 }
+    
+    overlap = calculateOverlap()
+    = 30 pixels
+    
+    separation = 30 + EPSILON
+end note
+
+CRS -> ENT: player.transform.pos += {30, 0}
+note right of ENT
+    player_pos = { 990, 200 }
+    Se aleja
+end note
+
+CRS -> ENT: enemy.transform.pos -= {30, 0}
+note right of ENT
+    enemy_pos = { 920, 200 }
+    Se aleja
+end note
+
+CRS -> W: EmitEvent(DamageEvent)
+note right of W
+    event.entity = Player
+    event.damage = 10
+    m_Events.push_back(event)
+end note
+
+== DAMAGE PROCESSING ==
+
+W -> W: event = DamageEvent
+
+W -> DMG: HandleDamageEvent(event)
+note right of DMG
+    player.health -= 10
+    player.health = 90
+    
+    IF health > 0:
+        player.invulnerable = true
+        player.invulnTimer = 2.0
+end note
+
+== SIGUIENTE FRAME ==
+
+note over GL, ENT
+    Frame N+1:
+    - Colisión resuelta
+    - Daño aplicado
+    - Invulnerabilidad activa
+    
+    Dos frames de separación:
+    - Detección (frame N update)
+    - Respuesta (frame N render)
+    - Daño (frame N render)
+end note
+
+@enduml

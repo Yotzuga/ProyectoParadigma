@@ -1,0 +1,70 @@
+@startuml Event_Types
+!theme plain
+
+abstract class Event {
+    +getType(): string
+}
+
+class CollisionEvent {
+    +type: CollisionType
+    +entityA: Entity*
+    +entityB: Entity*
+}
+
+class DamageEvent {
+    +victim: Entity*
+    +damage: int
+}
+
+class SpawnEvent {
+    +position: vec2
+}
+
+class SpawnEnemyEvent {
+    +enemyTypeName: string
+    +speedMultiplier: float
+}
+
+class WaveStartEvent {
+    +waveNumber: int
+    +phaseId: int
+}
+
+class WaveEndEvent {
+    +waveNumber: int
+}
+
+class ObstacleSpawnEvent {
+    +x: float
+    +y: float
+}
+
+Event <|-- CollisionEvent
+Event <|-- DamageEvent
+Event <|-- SpawnEvent
+Event <|-- SpawnEnemyEvent
+Event <|-- WaveStartEvent
+Event <|-- WaveEndEvent
+Event <|-- ObstacleSpawnEvent
+
+note right of CollisionEvent
+  Emitida por: CollisionSystem
+  Procesada por: CollisionResponseSystem, DamageSystem
+  Tipos: PLAYER_ENEMY, ENEMY_ENEMY,
+         ENTITY_WORLD, PLAYER_OBSTACLE,
+         ENEMY_OBSTACLE
+end note
+
+note right of SpawnEnemyEvent
+  Emitida por: WaveSystem
+  Procesada por: SpawnSystem
+  Crea enemigos dinámicamente
+end note
+
+note right of WaveEndEvent
+  Emitida por: WaveSystem
+  Procesada por: LifetimeSystem
+  Limpia entidades al terminar oleada
+end note
+
+@enduml

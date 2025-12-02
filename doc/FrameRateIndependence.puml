@@ -1,0 +1,109 @@
+@startuml FrameRateIndependence
+!theme plain
+
+participant "Game::Run()" as GAME
+participant "Clock" as CLK
+participant "MovementSystem" as MOV
+participant "Entity" as E
+participant "Monitor" as MON
+
+== ESCENARIO: CÁLCULO CORRECTO (Frame Rate Independent) ==
+
+== FRAME 1 @ 60 FPS ==
+
+GAME -> CLK: deltaTime = GetFrameTime()
+note right of CLK
+    frameTime = 16.67 ms
+    (1000 / 60)
+end note
+
+GAME -> MOV: update(16.67)
+MOV -> E: velocity.x = 100
+
+note right of MOV
+    NEW_X = 0 + (100 * 0.01667)
+    NEW_X = 0 + 1.667
+    NEW_X ≈ 1.667
+end note
+
+E -> CLK: Render at X = 1.667
+MON -> MON: Pixel [1.667] ≈ Pixel [2]
+
+note right of CLK
+    Distancia por frame: 1.667 píxeles
+end note
+
+== FRAME 2 @ 60 FPS ==
+
+GAME -> CLK: deltaTime = 16.67 ms
+GAME -> MOV: update(16.67)
+
+note right of MOV
+    NEW_X = 1.667 + (100 * 0.01667)
+    NEW_X = 1.667 + 1.667
+    NEW_X ≈ 3.334
+end note
+
+E -> CLK: Render at X = 3.334
+MON -> MON: Pixel [3.334] ≈ Pixel [3]
+
+note right of CLK
+    Distancia acumulada: 3.334 píxeles en 2 frames
+end note
+
+== FRAME N @ 30 FPS (si delta es mayor) ==
+
+GAME -> CLK: deltaTime = 33.33 ms
+note right of CLK
+    Más lento (más tiempo por frame)
+    1000 / 30 = 33.33 ms
+end note
+
+GAME -> MOV: update(33.33)
+
+note right of MOV
+    NEW_X = 3.334 + (100 * 0.03333)
+    NEW_X = 3.334 + 3.333
+    NEW_X ≈ 6.667
+end note
+
+E -> CLK: Render at X = 6.667
+MON -> MON: Pixel [6.667] ≈ Pixel [7]
+
+note right of CLK
+    Distancia por 1 frame @ 30 FPS = 3.333
+    Es EL DOBLE que @ 60 FPS (1.667)
+    
+    ✓ CORRECTO: Movimiento proporcional
+    ✓ Mismo progreso en el mundo
+    ✓ Solo más píxeles por frame visibles
+end note
+
+== PROBLEMA: SIN FRAME RATE INDEPENDENCE ==
+
+note right of GAME
+    ❌ INCORRECTO:
+    if (KeyPressed) X += 2;
+    
+    @ 60 FPS: X += 2 * 60 = 120 píxeles/seg
+    @ 30 FPS: X += 2 * 30 = 60 píxeles/seg
+    
+    ¡Se mueve el DOBLE rápido a 60 FPS!
+end note
+
+== SOLUCIÓN IMPLEMENTADA ==
+
+note over GAME, MON
+    ✓ Sempre usar: NEW_POS = OLD_POS + VEL * deltaTime
+    
+    ✓ DeltaTime es el "scaler" que hace
+      que la velocidad sea independiente del FPS
+    
+    ✓ Clamped deltaTime (máx 0.016) previene
+      saltos enormes si hay lag
+    
+    ✓ Resultado: Mismo movimiento visual
+      sin importar FPS
+end note
+
+@enduml

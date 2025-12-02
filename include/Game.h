@@ -42,6 +42,7 @@ struct GameContext
 #include "Systems/EnemyAISystem.h"
 #include "Systems/HUDSystem.h"
 #include "Systems/WaveManagerSystem.h"
+#include "Systems/MusicSystem.h"
 
 /**
  * @class Game
@@ -90,6 +91,7 @@ private:
 
     // ===== MANAGER CENTRAL =====
     std::unique_ptr<WaveManagerSystem> m_WaveManagerSystem; ///< Orquesta: Waves, Background, Spawn, Lifetime
+    std::unique_ptr<MusicSystem> m_MusicSystem;             ///< Sistema de música de fondo
 
 public:
     // ===== CICLO DE VIDA =====

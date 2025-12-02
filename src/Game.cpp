@@ -48,7 +48,7 @@ bool Game::Initialize()
     // ========================================
     // INICIALIZAR SDL
     // ========================================
-    if (!SDL_Init(SDL_INIT_VIDEO))
+    if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO))
     {
         spdlog::error("SDL_Init error: {}", SDL_GetError());
         return false;
@@ -103,6 +103,16 @@ bool Game::Initialize()
 
     m_WaveManagerSystem->StartWaves(m_World);
 
+    // ========================================
+    // INICIALIZAR SISTEMA DE MÚSICA
+    // ========================================
+    m_MusicSystem = std::make_unique<MusicSystem>();
+    if (!m_MusicSystem->LoadMusic("assets/song/Chipzel-Courtesy.wav"))
+    {
+        spdlog::warn("No se pudo cargar la música (continuando sin audio)");
+        // No es crítico - el juego puede continuar sin música
+    }
+
     spdlog::info("Sistemas ECS inicializados correctamente");
     m_IsRunning = true;
     return true;
@@ -144,6 +154,14 @@ bool Game::Start()
 
     spdlog::info("Jugador creado: ID={}, Posicion=({:.1f},{:.1f}), HP={}",
                  player.m_Id, playerCfg.spawnX, playerCfg.spawnY, playerCfg.maxHp);
+
+    // ========================================
+    // INICIAR MÚSICA
+    // ========================================
+    if (m_MusicSystem)
+    {
+        m_MusicSystem->Play();
+    }
 
     return true;
 }
@@ -218,6 +236,12 @@ void Game::Render(float deltaTime)
 {
     if (m_GameOver)
     {
+        // Detener música cuando el juego termina (SOLO UNA VEZ)
+        if (!m_GameOverPrinted && m_MusicSystem)
+        {
+            m_MusicSystem->Stop();
+        }
+
         // Renderizar pantalla de Game Over
         SDL_SetRenderDrawColor(m_Renderer, 0, 0, 0, 255); // Fondo negro
         SDL_RenderClear(m_Renderer);
