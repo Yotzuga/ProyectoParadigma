@@ -53,9 +53,9 @@ build_include:
 		$(INCLUDES) \
 		-o ./bin/ObstacleComponent.o
 
-	g++ -c ./src/EntityFactory.cpp \
+	g++ -c ./src/EntityManager.cpp \
 		$(INCLUDES) \
-		-o ./bin/EntityFactory.o
+		-o ./bin/EntityManager.o
 
 	g++ -c ./src/Event.cpp \
 		$(INCLUDES) \

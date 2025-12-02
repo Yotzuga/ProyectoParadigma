@@ -1,5 +1,5 @@
 #include "../../include/Systems/SpawnSystem.h"
-#include "../../include/EntityFactory.h"
+#include "../../include/EntityManager.h"
 #include "../../include/Event.h"
 #include <spdlog/spdlog.h>
 #include <queue>
@@ -22,9 +22,9 @@ void SpawnSystem::update(World &world, float dt)
     {
         if (event->getType() == "SpawnEnemyEvent")
         {
-            // ✅ Delegación a EntityFactory
+            // ✅ Delegación a EntityManager
             auto *spawnEvent = static_cast<SpawnEnemyEvent *>(event.get());
-            EntityFactory::CreateEnemy(
+            EntityManager::CreateEnemy(
                 world,
                 m_Renderer,
                 m_EnemyTypes,
@@ -33,9 +33,9 @@ void SpawnSystem::update(World &world, float dt)
         }
         else if (event->getType() == "ObstacleSpawnEvent")
         {
-            // ✅ Delegación a EntityFactory
+            // ✅ Delegación a EntityManager
             auto *obstacleEvent = static_cast<ObstacleSpawnEvent *>(event.get());
-            EntityFactory::CreateObstacle(
+            EntityManager::CreateObstacle(
                 world,
                 m_Renderer,
                 m_ObstacleConfig,

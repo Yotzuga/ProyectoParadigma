@@ -26,11 +26,11 @@ void LifetimeSystem::update(World &world, float dt)
             const auto &enemies = world.GetEnemies(); // ✅ Usar caché, no GetAllEntities()
             for (const auto &entity : enemies)
             {
-                entitiesToKill.push_back(entity->m_Id);
+                entitiesToKill.push_back(entity->m_Id); // agregar todos los ids a la lista a eliminar
                 enemiesKilled++;
             }
 
-            for (uint32_t id : entitiesToKill)
+            for (uint32_t id : entitiesToKill) // eliminar enemigos por id
             {
                 world.deleteEntity(id);
             }

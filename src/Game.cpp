@@ -107,7 +107,7 @@ bool Game::Initialize()
     // INICIALIZAR SISTEMA DE MÚSICA
     // ========================================
     m_MusicSystem = std::make_unique<MusicSystem>();
-    if (!m_MusicSystem->LoadMusic("assets/song/Chipzel-Courtesy.wav"))
+    if (!m_MusicSystem->LoadMusic("assets/song/Behind-The-Scene.wav"))
     {
         spdlog::warn("No se pudo cargar la música (continuando sin audio)");
         // No es crítico - el juego puede continuar sin música
@@ -139,7 +139,7 @@ bool Game::Start()
     auto playerComp = std::make_unique<PlayerComponent>();
     player.AddComponent(std::move(playerComp));
 
-    // ✅ LIMPIO: Usar posición precalculada del config
+    //  Usar posición precalculada del config
     auto playerTransform = std::make_unique<TransformComponent>(playerCfg.spawnX, playerCfg.spawnY, 0.0f, 0.0f);
     player.AddComponent(std::move(playerTransform));
 

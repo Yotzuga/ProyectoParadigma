@@ -12,7 +12,7 @@
  *
  * Usado por:
  * - EnemyAISystem: Lee estos parámetros para calcular comportamiento
- * - EntityFactory: Inicializa estos valores desde JSON
+ * - EntityManager: Inicializa estos valores desde JSON
  *
  * Tipos de enemigos (definidos en JSON):
  * - Enemigo1: Velocidad baja, rango pequeño

@@ -12,13 +12,13 @@
  * Responsabilidades:
  * - Escucha SpawnEnemyEvent y SpawnObstacleEvent
  * - Crea entidades (enemigos u obstáculos) en posiciones especificadas
- * - Utiliza EntityFactory para inicialización consistente
+ * - Utiliza EntityManager para inicialización consistente
  * - Emite eventos de creación para logging
  *
  * Flujo:
  * 1. WaveSystem emite SpawnEnemyEvent
  * 2. SpawnSystem procesa evento
- * 3. Crea enemigo con EntityFactory::CreateEnemy
+ * 3. Crea enemigo con EntityManager::CreateEnemy
  * 4. Agregua entidad al World
  *
  * Configuración:
